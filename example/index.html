@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <script src="../dist/bundle.js"></script>
+        <title>Epex Market Results</title>
+        <style>
+            table {
+                border-collapse: collapse;
+                margin-bottom: 15px;
+                font-family: 'Arial', sans-serif;
+                font-size: 13px;
+            }
+            table,
+            th,
+            td {
+                border: 1px solid #ddd;
+            }
+
+            th {
+                background-color: #333;
+                color: #fff;
+                font-size: 14px;
+                padding: 8px 10px;
+                text-align: left;
+                text-transform: uppercase;
+            }
+
+            td {
+                padding: 6px 10px;
+                text-align: left;
+                background-color: #f4f4f4;
+            }
+
+            tr:nth-child(odd) td {
+                background-color: #f9f9f9;
+            }
+
+            tr:nth-child(even) td {
+                background-color: #e9e9e9;
+            }
+
+            tr:hover td {
+                background-color: #d9d9d9;
+            }
+
+            #errorDiv {
+                color: #d9534f;
+                font-weight: bold;
+                margin-top: 10px;
+            }
+
+            td:last-child {
+                text-align: right;
+            }
+
+            .small {
+                font-size: 0.8em; /* Makes the text smaller */
+            }
+
+            @media (max-width: 768px) {
+                table {
+                    font-size: 12px;
+                }
+
+                th,
+                td {
+                    padding: 5px 8px;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <h1 id="title">Epex Market Results</h1>
+
+        <table id="priceTable">
+            <thead>
+                <tr>
+                    <th>Index</th>
+                    <th>Price <span class="small">(€/MWh)</span></th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+
+        <table id="marketDataTable">
+            <thead>
+                <tr>
+                    <th>Hours</th>
+                    <th>Buy Volume <span class="small">(MWh)</span></th>
+                    <th>Sell Volume <span class="small">(MWh)</span></th>
+                    <th>Volume <span class="small">(MWh)</span></th>
+                    <th>Price <span class="small">(€/MWh)</span></th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+
+        <div id="errorDiv"></div>
+
+        <script>
+            // Use a local proxy server to by-pass CORS restrictions.
+            const client = new Epex.Client({ proxyServer: 'http://localhost:8088', debug: true });
+
+            client
+                .getDayAheadMarketData(Epex.MarketArea.Belgium, Epex.today())
+                .then((result) => {
+                    document.getElementById('title').textContent = `Epex Market Results for ${result.area} - ${result.deliveryDate}`;
+
+                    const priceTable = document.getElementById('priceTable').getElementsByTagName('tbody')[0];
+                    priceTable.innerHTML = '';
+                    [
+                        { index: 'Baseload', price: result.baseloadPrice },
+                        { index: 'Peakload', price: result.peakloadPrice }
+                    ].forEach((price) => {
+                        const row = priceTable.insertRow();
+                        const indexCell = row.insertCell();
+                        indexCell.textContent = price.index;
+                        const priceCell = row.insertCell();
+                        priceCell.textContent = price.price;
+                    });
+
+                    // Fill in the Day Ahead Market Results table
+                    const marketDataTable = document.getElementById('marketDataTable').getElementsByTagName('tbody')[0];
+                    marketDataTable.innerHTML = '';
+                    result.entries.forEach((entry) => {
+                        const row = marketDataTable.insertRow();
+                        const hours = row.insertCell();
+                        hours.textContent = `${entry.startPeriod} - ${entry.endPeriod}`;
+
+                        Object.values(['buyVolume', 'sellVolume', 'volume', 'price']).forEach((value) => {
+                            const cell = row.insertCell();
+                            cell.textContent = entry[value];
+                        });
+                    });
+                })
+                .catch((error) => {
+                    document.getElementById('errorDiv').textContent = `Something went wrong when requesting the Market Results: ${error.message}`;
+                    console.error(error);
+                });
+        </script>
+    </body>
+</html>
