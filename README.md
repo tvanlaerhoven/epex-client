@@ -58,7 +58,7 @@ import * as Epex from '@tvanlaerhoven/epex-client';
 const client = new Epex.Client({ proxyServer: 'http://localhost:8088', debug: true });
 ```
 
-The [example]('https://github.com/tvanlaerhoven/epex-client/tree/main/example') demonstrates this. Try it by running:
+The [example](https://github.com/tvanlaerhoven/epex-client/tree/main/example) demonstrates this. Try it by running:
 
 ```sh
 npm run example
