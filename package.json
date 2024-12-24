@@ -22,7 +22,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@github.com:THEOplayer/react-native-connectors.git"
+    "url": "git+ssh://git@github.com/tvanlaerhoven/epex-client.git"
   },
   "author": "Tom Van Laerhoven",
   "license": "GPL-3.0",

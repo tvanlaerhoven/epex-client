@@ -20,7 +20,7 @@ npm i @tvanlaerhoven/epex-client
 or
 
 ```sh
-yarn @tvanlaerhoven/epex-client
+yarn add @tvanlaerhoven/epex-client
 ```
 
 ## Usage
