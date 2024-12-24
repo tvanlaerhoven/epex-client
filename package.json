@@ -20,14 +20,22 @@
     "lint:fix": "npm run lint -- --fix",
     "prepare": "husky"
   },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:THEOplayer/react-native-connectors.git"
+  },
+  "author": "Tom Van Laerhoven",
+  "license": "GPL-3.0",
+  "homepage": "https://github.com/tvanlaerhoven/epex-client",
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/"
+  },
   "lint-staged": {
     "*/(src|test)/**/*.{js,jsx,ts,tsx}": [
       "prettier --write"
     ]
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
   "devDependencies": {
     "@changesets/cli": "^2.27.11",
     "@rollup/plugin-commonjs": "^28.0.2",
