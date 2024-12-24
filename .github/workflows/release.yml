@@ -24,7 +24,7 @@ jobs:
         with:
           commit: "Release"
           title: "Release"
-          version: npm run changeset:version
+          version: npx changeset version
           publish: npx changeset publish
           createGithubReleases: true
         env:
