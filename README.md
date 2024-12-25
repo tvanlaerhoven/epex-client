@@ -2,7 +2,7 @@
 
 The *Epex Client* package enables querying of the latest European Power Exchange (EPEX) market data. 
 It is intended primarily for hobbyist solutions, as the data is sourced directly from the official 
-[EPEX website](https://www.epex.com).
+[EPEX website](https://www.epexspot.com).
 
 ## Overview
 
@@ -34,7 +34,7 @@ import * as Epex from '@tvanlaerhoven/epex-client';
 const client = new Epex.Client({ debug: true });
 ```
 
-Then request the market data:
+Then request the market data for a selected region:
 
 ```typescript
 try {

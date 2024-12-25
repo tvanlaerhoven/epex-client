@@ -1,42 +1,28 @@
-import tsParser from "@typescript-eslint/parser";
-import tsPlugin from "@typescript-eslint/eslint-plugin";
+// @ts-check
+import eslint from '@eslint/js';
+import eslintConfigPrettier from 'eslint-config-prettier';
+import typescriptEslint from 'typescript-eslint';
 
-export default [
-  {
-    ignores: ["node_modules/**"],
-  },
-  {
-    files: ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx"],
-    languageOptions: {
-      parser: tsParser,
-      parserOptions: {
-        ecmaVersion: "latest",
-        sourceType: "module",
-      },
-      globals: {
-        require: "readonly",
-        process: "readonly",
-        module: "readonly",
-      },
-    },
-    plugins: {
-      "@typescript-eslint": tsPlugin,
-    },
-    rules: {
-      "max-len": [
-        "error",
-        {
-          code: 150,
-          ignoreComments: true,
-          ignoreStrings: true,
-          ignoreTemplateLiterals: true,
+export default typescriptEslint.config(
+    eslint.configs.recommended,
+    ...typescriptEslint.configs.recommended,
+    eslintConfigPrettier,
+    {
+        languageOptions: {
+            globals: {
+                require: "readonly",
+                console: "readonly",
+            },
         },
-      ],
-      "@typescript-eslint/explicit-module-boundary-types": "off",
-      "@typescript-eslint/ban-ts-comment": "off",
-      "@typescript-eslint/no-namespace": "off",
-      "@typescript-eslint/no-explicit-any": "warn",
-      "@typescript-eslint/no-unused-vars": "warn",
+        rules: {
+            '@typescript-eslint/no-unused-vars': [
+                'warn',
+                {
+                    argsIgnorePattern: '^_'
+                }
+            ],
+            "@typescript-eslint/no-require-imports": "off",
+            '@typescript-eslint/no-explicit-any': 'off'
+        }
     },
-  },
-];
+);
