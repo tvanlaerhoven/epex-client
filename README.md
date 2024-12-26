@@ -1,8 +1,7 @@
 # Epex Client
 
 The *Epex Client* package enables querying of the latest European Power Exchange (EPEX) market data. 
-It is intended primarily for hobbyist solutions, as the data is sourced directly from the official 
-[EPEX website](https://www.epexspot.com).
+It is intended primarily for hobbyist solutions.
 
 ## Overview
 
@@ -10,6 +9,15 @@ The **European Power Exchange (EPEX SPOT)** is a [market platform](https://www.e
 the trading of electricity in Europe. 
 It provides a marketplace for electricity producers, consumers, and traders to buy and sell electricity, 
 aiming to create a transparent and efficient market for power trading. 
+
+The *Epex Client* package gives you access to the EPEX Spot Day-Ahead Market, where the electricity price and volume
+for each hour of the next day is established.
+You can work with these Day-Ahead prices by adjusting your electricity consumption patterns based on the price 
+fluctuations. Here's how:
+
+- **Shift High Consumption Activities**: reduce energy costs by scheduling energy-intensive activities (like running washing machines, dishwashers, or electric heating) during hours when electricity prices are lower.
+- **Use Home Automation**: home automation systems or smart appliances can automatically adjust the timing of electricity usage based on the predicted lower-cost periods provided by the Epex-client.
+- **Energy Storage**: energy storage systems (like batteries) can store electricity during low-price hours and use it during peak-price hours.
 
 ## Installation
 
@@ -46,6 +54,9 @@ try {
 }
 ```
 
+Prices for the next day can be accessed as well, but they are typically published **in the early afternoon** on the day
+before delivery.
+
 ## Rendering market data in a browser
 
 The Epex website does not allow browser requests from any other location than its own host 
@@ -64,9 +75,10 @@ The [example](https://github.com/tvanlaerhoven/epex-client/tree/main/example) de
 npm run example
 ```
 
-The output is a table with today's market prices:
+The output is a page where you can choose to either visualize today's market prices in table or as a bar graph:
 
 <img src="./docs/table.png" alt="Market Prices" width="500"/>
+<img src="./docs/bars.png" alt="Market Prices" width="500"/>
 
 
 
