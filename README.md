@@ -7,6 +7,9 @@ It is intended primarily for hobbyist solutions.
 [![npm version](https://img.shields.io/npm/v/@tvanlaerhoven/epex-client)](https://www.npmjs.com/package/@tvanlaerhoven/epex-client)
 ![CI](https://github.com/tvanlaerhoven/epex-client/actions/workflows/ci.yml/badge.svg)
 
+<img src="./docs/table.png" alt="Market Prices" width="250"/>
+<img src="./docs/bars.png" alt="Market Prices" width="350"/>
+
 ## Overview
 
 The **European Power Exchange (EPEX SPOT)** is a [market platform](https://www.epexspot.com/) for 
@@ -83,10 +86,7 @@ The [example](https://github.com/tvanlaerhoven/epex-client/tree/main/example) de
 npm run example
 ```
 
-The output is a page where you can choose to either visualize today's market prices in table or as a bar graph:
-
-<img src="./docs/table.png" alt="Market Prices" width="500"/>
-<img src="./docs/bars.png" alt="Market Prices" width="500"/>
+The output is a page where you can choose to either visualize today's market prices in table or as a bar graph.
 
 
 
