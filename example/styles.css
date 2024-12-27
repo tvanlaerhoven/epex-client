@@ -46,6 +46,10 @@ tr:hover td {
     background-color: #d9d9d9;
 }
 
+.highlighted-row td {
+    background-color: lightgreen !important;
+}
+
 #errorDiv {
     color: #d9534f;
     font-weight: bold;
