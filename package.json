@@ -35,7 +35,7 @@
       "prettier --write"
     ]
   },
-  "keywords": [],
+  "keywords": ["epex", "epex-spot", "smartenergy", "energy"],
   "devDependencies": {
     "@changesets/cli": "^2.27.11",
     "@rollup/plugin-commonjs": "^28.0.2",
