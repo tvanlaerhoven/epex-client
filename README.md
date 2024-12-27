@@ -3,6 +3,10 @@
 The *Epex Client* package enables querying of the latest European Power Exchange (EPEX) market data. 
 It is intended primarily for hobbyist solutions.
 
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![npm version](https://img.shields.io/npm/v/@tvanlaerhoven/epex-client)](https://www.npmjs.com/package/@tvanlaerhoven/epex-client)
+![CI](https://github.com/tvanlaerhoven/epex-client/actions/workflows/ci.yml/badge.svg)
+
 ## Overview
 
 The **European Power Exchange (EPEX SPOT)** is a [market platform](https://www.epexspot.com/) for 
