@@ -1,6 +1,6 @@
 # Epex Client
 
-The *Epex Client* package enables querying of the latest European Power Exchange (EPEX) market data. 
+The *Epex Client* package provides access to the latest European Power Exchange (EPEX) market data **across all areas**.
 It is intended primarily for hobbyist solutions.
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
@@ -46,7 +46,10 @@ import * as Epex from '@tvanlaerhoven/epex-client';
 const client = new Epex.Client({ debug: true });
 ```
 
-Then request the market data for a selected region:
+### Accessing day-ahead market data
+
+The day-ahead market data contains the established electricity prices and quantities for a selected region, 
+based on supply and demand. As an example. the data for `MarketArea.Belgium` can be requested as follows:
 
 ```typescript
 try {
@@ -58,10 +61,11 @@ try {
 }
 ```
 
-Prices for the next day can be accessed as well, but they are typically published **in the early afternoon** on the day
-before delivery.
+The requested delivery date is passed as a string `"YYY-MM-DD"`, or using the convenient methods `Epex.today()` and
+`Epex.tomorrow()`. 
+Note that prices for the next day are typically available **in the early afternoon** on the day before delivery.
 
-## Rendering market data in a browser
+### Displaying market data in a browser
 
 The Epex website does not allow browser requests from any other location than its own host 
 ([CORS](https://en.wikipedia.org/wiki/Cross-origin_resource_sharing)). To solve this, run a local
