@@ -60,6 +60,11 @@
                 return `rgb(${red}, ${green}, 0)`; // Return color as RGB
             }
 
+            function getBorderWidth(hour) {
+                const currentHour = new Date().getHours();
+                return hour >= currentHour && hour < currentHour + 1 ? 3 : 0;
+            }
+
             // Get the canvas element
             const ctx = document.getElementById('priceBarChart').getContext('2d');
 
@@ -89,6 +94,8 @@
                             font: {
                                 weight: 'bold'
                             },
+                            borderColor: 'yellow',
+                            borderWidth: result.entries.map(entry => getBorderWidth(entry.startPeriod)),
                             formatter: Math.round,
                             padding: 6,
                             rotation: -45,

@@ -57,6 +57,8 @@
                         priceCell.textContent = price.price;
                     });
 
+                    const currentHour = new Date().getHours();
+
                     // Fill in the Day Ahead Market Results table
                     const marketDataTable = document.getElementById('marketDataTable').getElementsByTagName('tbody')[0];
                     marketDataTable.innerHTML = '';
@@ -64,6 +66,9 @@
                         const row = marketDataTable.insertRow();
                         const hours = row.insertCell();
                         hours.textContent = `${entry.startPeriod} - ${entry.endPeriod}`;
+                        if (entry.startPeriod >= currentHour && entry.startPeriod < currentHour + 1) {
+                            row.classList.add('highlighted-row');
+                        }
 
                         Object.values(['buyVolume', 'sellVolume', 'volume', 'price']).forEach((value) => {
                             const cell = row.insertCell();
