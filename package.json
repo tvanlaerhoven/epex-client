@@ -4,7 +4,7 @@
   "description": "Collect European Power Exchange (EPEX) market data",
   "main": "dist/bundle.cjs.js",
   "module": "dist/bundle.esm.js",
-  "types": "dist/index.d.ts",
+  "types": "dist/types/index.d.ts",
   "files": [
     "dist",
     "CHANGELOG.md"
@@ -13,11 +13,12 @@
     "clean": "rimraf dist",
     "build": "rollup -c",
     "watch": "rollup -c --watch",
-    "example": "node example/proxy_server.js & lite-server",
+    "example": "npm run build && node example/proxy_server.js & lite-server",
     "prettier": "prettier --check \"(src|example)/**/*.{js,ts}\"",
     "prettier:fix": "prettier --write \"(src|example)/**/*.{js,ts}\"",
     "lint": "eslint \"{src,example}/**/*.{js,ts}\"",
     "lint:fix": "npm run lint -- --fix",
+    "changeset:entry": "npx changeset",
     "prepare": "husky"
   },
   "repository": {

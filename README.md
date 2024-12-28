@@ -7,8 +7,16 @@ It is intended primarily for hobbyist solutions.
 [![npm version](https://img.shields.io/npm/v/@tvanlaerhoven/epex-client)](https://www.npmjs.com/package/@tvanlaerhoven/epex-client)
 ![CI](https://github.com/tvanlaerhoven/epex-client/actions/workflows/ci.yml/badge.svg)
 
-| <img src="./docs/table.png" alt="Market Prices" width="350"/> | <img src="./docs/bars.png" alt="Market Prices" width="450"/> |
-|---------------------------------------------------------------|--------------------------------------------------------------|
+<table>
+  <tr>
+    <td style="vertical-align: top;">
+      <img src="./docs/table.png" alt="Market Prices" width="350"/>
+    </td>
+    <td style="vertical-align: top;">
+      <img src="./docs/bars.png" alt="Market Prices" width="450"/>
+    </td>
+  </tr>
+</table>
 
 ## Overview
 

@@ -6,7 +6,7 @@ export default {
     input: 'src/index.ts',
     output: [
         {
-            file: 'dist/bundle.js',
+            file: 'dist/bundle.cjs.js',
             format: 'umd',
             name: 'Epex',
             sourcemap: true
