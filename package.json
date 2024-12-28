@@ -18,6 +18,7 @@
     "prettier:fix": "prettier --write \"(src|example)/**/*.{js,ts}\"",
     "lint": "eslint \"{src,example}/**/*.{js,ts}\"",
     "lint:fix": "npm run lint -- --fix",
+    "changeset:entry": "npx changeset",
     "prepare": "husky"
   },
   "repository": {
