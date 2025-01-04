@@ -1,5 +1,11 @@
 # @tvanlaerhoven/epex-client
 
+## 1.0.4
+
+### Patch Changes
+
+- 93730bb: Fixed an issue where the market area for Germany used a faulty string.
+
 ## 1.0.3
 
 ### Patch Changes
