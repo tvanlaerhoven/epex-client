@@ -248,7 +248,7 @@ export class Client {
         tradingDate: string,
         marketSegment: MarketSegment,
         auction?: DayAheadAuction | IntradayAuction
-    ) {
+    ): string {
         return (
             `${this.maybeUseProxy('https://www.epexspot.com/en/market-results')}` +
             `?market_area=${area}` +
@@ -279,7 +279,7 @@ export class Client {
 
     private debug(message: string, ...other: string[]) {
         if (this.config.debug) {
-            console.debug('EPEX', message, other);
+            console.debug('EPEX', message, ...other);
         }
     }
 }
