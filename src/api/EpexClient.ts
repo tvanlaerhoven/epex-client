@@ -10,7 +10,7 @@ export enum MarketArea {
     Denmark2 = 'DK2',
     Finland = 'FI',
     France = 'FR',
-    Germany = 'DE',
+    Germany = 'DE-LU',
     GreatBritain = 'GB',
     Netherlands = 'NL',
     Norway1 = 'NO1',
