@@ -1,5 +1,12 @@
 # @tvanlaerhoven/epex-client
 
+## 1.0.3
+
+### Patch Changes
+
+- 71839d1: Fixed an issue where the requested delivery date did not always match the returned data.
+- 71839d1: Renamed market areas to match descriptions.
+
 ## 1.0.2
 
 ### Patch Changes
