@@ -1,26 +1,56 @@
 // noinspection JSUnusedGlobalSymbols
+
 import { MarketData } from './MarketData';
 import { today } from './DateUtils';
 
 export enum MarketArea {
     Austria = 'AT',
     Belgium = 'BE',
-    GermanyLuxembourg = 'DE-LU',
-    DenmarkWest = 'DK1',
-    DenmarkEast = 'DK2',
+    Denmark1 = 'DK1',
+    Denmark2 = 'DK2',
     Finland = 'FI',
     France = 'FR',
+    Germany = 'DE',
+    GreatBritain = 'GB',
     Netherlands = 'NL',
-    NorwaySouth = 'NO1',
-    NorwayEast = 'NO2',
-    NorwayWest = 'NO3',
-    NorwayNorth = 'NO4',
-    NorwayNorthEast = 'NO5',
+    Norway1 = 'NO1',
+    Norway2 = 'NO2',
+    Norway3 = 'NO3',
+    Norway4 = 'NO4',
+    Norway5 = 'NO5',
     Poland = 'PL',
-    SwedenSouth = 'SE1',
-    SwedenMiddle = 'SE2',
-    SwedenNorth = 'SE3',
-    SwedenNorthEast = 'SE4'
+    Sweden1 = 'SE1',
+    Sweden2 = 'SE2',
+    Sweden3 = 'SE3',
+    Sweden4 = 'SE4',
+    Switzerland = 'CH'
+}
+
+const marketAreaDescriptions: Record<MarketArea, string> = {
+    [MarketArea.Austria]: 'Austria',
+    [MarketArea.Belgium]: 'Belgium',
+    [MarketArea.Denmark1]: 'Denmark (Zone 1)',
+    [MarketArea.Denmark2]: 'Denmark (Zone 2)',
+    [MarketArea.Finland]: 'Finland',
+    [MarketArea.France]: 'France',
+    [MarketArea.Germany]: 'Germany',
+    [MarketArea.GreatBritain]: 'Great Britain',
+    [MarketArea.Netherlands]: 'Netherlands',
+    [MarketArea.Norway1]: 'Norway (Zone 1)',
+    [MarketArea.Norway2]: 'Norway (Zone 2)',
+    [MarketArea.Norway3]: 'Norway (Zone 3)',
+    [MarketArea.Norway4]: 'Norway (Zone 4)',
+    [MarketArea.Norway5]: 'Norway (Zone 5)',
+    [MarketArea.Poland]: 'Poland',
+    [MarketArea.Sweden1]: 'Sweden (Zone 1)',
+    [MarketArea.Sweden2]: 'Sweden (Zone 2)',
+    [MarketArea.Sweden3]: 'Sweden (Zone 3)',
+    [MarketArea.Sweden4]: 'Sweden (Zone 4)',
+    [MarketArea.Switzerland]: 'Switzerland'
+};
+
+export function getMarketAreaDescription(marketArea: MarketArea): string {
+    return marketAreaDescriptions[marketArea];
 }
 
 export enum TradingModality {
@@ -170,16 +200,18 @@ export class Client {
         if (!response.ok) {
             throw new Error(`Error reading market result: ${response.status}`);
         }
+        const text = await response.text();
+
         return {
             area,
-            deliveryDate,
-            tradingDate,
+            deliveryDate: this.extractDate(text, 'delivery_date', deliveryDate),
+            tradingDate: this.extractDate(text, 'trading_date', tradingDate),
             modality: TradingModality.Auction,
             segment,
             baseloadPrice: 0,
             peakloadPrice: 0,
             entries: [],
-            ...this.parseTable(await response.text())
+            ...this.parseTable(text)
         };
     }
 
@@ -218,7 +250,7 @@ export class Client {
         tradingDate: string,
         marketSegment: MarketSegment,
         auction?: DayAheadAuction | IntradayAuction
-    ) {
+    ): string {
         return (
             `${this.maybeUseProxy('https://www.epexspot.com/en/market-results')}` +
             `?market_area=${area}` +
@@ -240,6 +272,12 @@ export class Client {
         return url;
     }
 
+    private extractDate(text: string, key: string, fallback: string): string {
+        const regex = new RegExp(`${key}=(\\d{4}-\\d{2}-\\d{2})`);
+        const match = text.match(regex);
+        return match ? match[1] : fallback;
+    }
+
     private parseExpectedCellFloatData(value?: string): number {
         if (!value) {
             throw new Error('Failed to find expected table data');
@@ -249,7 +287,7 @@ export class Client {
 
     private debug(message: string, ...other: string[]) {
         if (this.config.debug) {
-            console.debug('EPEX', message, other);
+            console.debug('EPEX', message, ...other);
         }
     }
 }

@@ -76,7 +76,30 @@ The requested delivery date is passed as a string `"YYY-MM-DD"`, or using the co
 `Epex.tomorrow()`. 
 Note that prices for the next day are typically available **in the early afternoon** on the day before delivery.
 
-### Displaying market data in a browser
+### SDAC (Single Day-Ahead Coupling), Great Britain and Switzerland
+
+Most European countries are part of the **SDAC (Single Day-Ahead Coupling)** pan-European market coupling initiative,
+which allows cross-border electricity trading and price convergence.
+Since Brexit, **Great Britain** has its own market, and also **Switzerland** as a non-EU country is not part of the
+SDAC initiative. For both regions it is necessary to pass the auction name when requesting Day-Ahead prices:
+
+```typescript
+const gbData = await client.getDayAheadMarketData(
+    Epex.MarketArea.GreatBritain, 
+    Epex.tomorrow(), 
+    Epex.today(), 
+    DayAheadAuction.GB_DAA1
+);
+
+const chData = await client.getDayAheadMarketData(
+    Epex.MarketArea.Switzerland, 
+    Epex.tomorrow(), 
+    Epex.today(), 
+    DayAheadAuction.CH
+);
+```
+
+## Displaying market data in a browser
 
 The Epex website does not allow browser requests from any other location than its own host 
 ([CORS](https://en.wikipedia.org/wiki/Cross-origin_resource_sharing)). To solve this, run a local
