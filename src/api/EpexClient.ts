@@ -26,6 +26,33 @@ export enum MarketArea {
     Switzerland = 'CH'
 }
 
+const marketAreaDescriptions: Record<MarketArea, string> = {
+    [MarketArea.Austria]: 'Austria',
+    [MarketArea.Belgium]: 'Belgium',
+    [MarketArea.Denmark1]: 'Denmark (Zone 1)',
+    [MarketArea.Denmark2]: 'Denmark (Zone 2)',
+    [MarketArea.Finland]: 'Finland',
+    [MarketArea.France]: 'France',
+    [MarketArea.Germany]: 'Germany',
+    [MarketArea.GreatBritain]: 'Great Britain',
+    [MarketArea.Netherlands]: 'Netherlands',
+    [MarketArea.Norway1]: 'Norway (Zone 1)',
+    [MarketArea.Norway2]: 'Norway (Zone 2)',
+    [MarketArea.Norway3]: 'Norway (Zone 3)',
+    [MarketArea.Norway4]: 'Norway (Zone 4)',
+    [MarketArea.Norway5]: 'Norway (Zone 5)',
+    [MarketArea.Poland]: 'Poland',
+    [MarketArea.Sweden1]: 'Sweden (Zone 1)',
+    [MarketArea.Sweden2]: 'Sweden (Zone 2)',
+    [MarketArea.Sweden3]: 'Sweden (Zone 3)',
+    [MarketArea.Sweden4]: 'Sweden (Zone 4)',
+    [MarketArea.Switzerland]: 'Switzerland'
+};
+
+export function getMarketAreaDescription(marketArea: MarketArea): string {
+    return marketAreaDescriptions[marketArea];
+}
+
 export enum TradingModality {
     Auction = 'Auction'
 }
