@@ -1,26 +1,29 @@
 // noinspection JSUnusedGlobalSymbols
+
 import { MarketData } from './MarketData';
 import { today } from './DateUtils';
 
 export enum MarketArea {
     Austria = 'AT',
     Belgium = 'BE',
-    GermanyLuxembourg = 'DE-LU',
-    DenmarkWest = 'DK1',
-    DenmarkEast = 'DK2',
+    Denmark1 = 'DK1',
+    Denmark2 = 'DK2',
     Finland = 'FI',
     France = 'FR',
+    Germany = 'DE',
+    GreatBritain = 'GB',
     Netherlands = 'NL',
-    NorwaySouth = 'NO1',
-    NorwayEast = 'NO2',
-    NorwayWest = 'NO3',
-    NorwayNorth = 'NO4',
-    NorwayNorthEast = 'NO5',
+    Norway1 = 'NO1',
+    Norway2 = 'NO2',
+    Norway3 = 'NO3',
+    Norway4 = 'NO4',
+    Norway5 = 'NO5',
     Poland = 'PL',
-    SwedenSouth = 'SE1',
-    SwedenMiddle = 'SE2',
-    SwedenNorth = 'SE3',
-    SwedenNorthEast = 'SE4'
+    Sweden1 = 'SE1',
+    Sweden2 = 'SE2',
+    Sweden3 = 'SE3',
+    Sweden4 = 'SE4',
+    Switzerland = 'CH'
 }
 
 export enum TradingModality {
