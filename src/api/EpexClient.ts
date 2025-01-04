@@ -200,16 +200,18 @@ export class Client {
         if (!response.ok) {
             throw new Error(`Error reading market result: ${response.status}`);
         }
+        const text = await response.text();
+
         return {
             area,
-            deliveryDate,
-            tradingDate,
+            deliveryDate: this.extractDate(text, 'delivery_date', deliveryDate),
+            tradingDate: this.extractDate(text, 'trading_date', tradingDate),
             modality: TradingModality.Auction,
             segment,
             baseloadPrice: 0,
             peakloadPrice: 0,
             entries: [],
-            ...this.parseTable(await response.text())
+            ...this.parseTable(text)
         };
     }
 
@@ -268,6 +270,12 @@ export class Client {
             return proxyUrl;
         }
         return url;
+    }
+
+    private extractDate(text: string, key: string, fallback: string): string {
+        const regex = new RegExp(`${key}=(\\d{4}-\\d{2}-\\d{2})`);
+        const match = text.match(regex);
+        return match ? match[1] : fallback;
     }
 
     private parseExpectedCellFloatData(value?: string): number {
