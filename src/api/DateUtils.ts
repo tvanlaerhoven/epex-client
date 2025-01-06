@@ -1,9 +1,12 @@
 export const today = () => {
-    return new Date().toISOString().slice(0, 10);
+    const t = new Date();
+    return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`;
 };
 
-export const tomorrow = () => {
-    return new Date(Date.now() + 86400000).toISOString().slice(0, 10);
+export const tomorrow = (): string => {
+    const t = new Date();
+    t.setDate(t.getDate() + 1);
+    return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`;
 };
 
 export const toQuarterlyString = (period: number): string => {
