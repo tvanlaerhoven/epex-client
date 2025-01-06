@@ -1,5 +1,11 @@
 # @tvanlaerhoven/epex-client
 
+## 1.0.5
+
+### Patch Changes
+
+- c3372b9: Fixed an issue where the time for today and tomorrow would be returned for the wrong time zone.
+
 ## 1.0.4
 
 ### Patch Changes
