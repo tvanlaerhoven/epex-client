@@ -193,6 +193,11 @@ export class Client {
         segment = MarketSegment.DayAhead,
         auction?: DayAheadAuction | IntradayAuction
     ): Promise<MarketData> {
+        // disable certificate issues
+        if (process?.env) {
+            process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+        }
+
         const url = this.buildUrl(area, deliveryDate, tradingDate, segment, auction);
         this.debug('fetching url', url);
         const response = await fetch(url);
