@@ -168,12 +168,16 @@ export interface ClientConfig {
 export class Client {
     constructor(private readonly config: ClientConfig) {}
 
-    async getDayAheadMarketData(
-        area: MarketArea,
-        deliveryDate: string = today(),
-        tradingDate: string = today(),
-        auction: DayAheadAuction = DayAheadAuction.SDAC
-    ) {
+    async getDayAheadMarketData(area: MarketArea, deliveryDate: string = today(), tradingDate: string = today(), auction?: DayAheadAuction) {
+        if (!auction) {
+            auction = DayAheadAuction.SDAC;
+            if (area === MarketArea.GreatBritain) {
+                auction = DayAheadAuction.GB_DAA1;
+            }
+            if (area === MarketArea.Switzerland) {
+                auction = DayAheadAuction.CH;
+            }
+        }
         return this.getMarketData(area, deliveryDate, tradingDate, MarketSegment.DayAhead, auction);
     }
 
