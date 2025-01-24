@@ -29,3 +29,6 @@ jobs:
         run: npm run lint
       - name: Build
         run: npm run build
+      - name: Test
+        working-directory: cli
+        run: node day-ahead-rates.mjs BE
