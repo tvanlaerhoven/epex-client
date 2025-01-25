@@ -2,7 +2,7 @@ name: Fetch and store market results
 
 on:
   schedule:
-    - cron: '0 1 * * *'
+    - cron: '0 14 * * *'
   workflow_dispatch:
 
 jobs:
@@ -23,7 +23,7 @@ jobs:
         run: npm run build
       - name: Fetch market results
         working-directory: cli
-        run: node add-today.mjs
+        run: node add-tomorrow.mjs
       - name: Configure Git
         run: |
           git config user.name "github-actions[bot]"
