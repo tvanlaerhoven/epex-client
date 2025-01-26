@@ -11,8 +11,7 @@ async function requestRates(area, deliveryDate, tradingDate, auction) {
 }
 
 async function storeTomorrow(marketArea) {
-    const currentYear = new Date().getFullYear().toString();
-    const filePath = `../data/${currentYear}/${marketArea}.csv`;
+    const filePath = `../data/${marketArea}.csv`;
     const d = await requestRates(marketArea, tomorrow);
     const dir = path.dirname(filePath);
     if (!fs.existsSync(dir)) {
