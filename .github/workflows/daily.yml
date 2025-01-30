@@ -31,7 +31,7 @@ jobs:
       - name: Commit Changes
         run: |
           git add data
-          git commit -m "Daily market results"
+          git commit -m "Daily market results $(date +'%Y-%m-%d')"
       - name: Push Changes
         run: |
           git push
