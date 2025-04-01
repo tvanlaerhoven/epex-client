@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import * as Epex from '../dist/bundle.cjs.js';
 import * as fs from 'node:fs';
+import * as readline from 'node:readline';
 import path from 'node:path';
 
 const tomorrow = Epex.tomorrow();
@@ -18,11 +19,31 @@ async function storeTomorrow(marketArea) {
         fs.mkdirSync(dir, { recursive: true });
         console.log(`Directory created: ${dir}`);
     }
-    fs.appendFileSync(
-        filePath,
-        `${d.deliveryDate},${d.entries.map((entry) => entry.price).join(',')},${d.baseloadPrice},${d.peakloadPrice}\n`,
-        'utf8'
-    );
+    const newLine = `${d.deliveryDate},${d.entries.map((entry) => entry.price).join(',')},${d.baseloadPrice},${d.peakloadPrice}`;
+    if (fs.existsSync(filePath)) {
+        // Read last line of the file
+        const lastLine = await getLastLine(filePath);
+        if (lastLine.substring(0, 10) === newLine.substring(0, 10)) {
+            console.log(`Skipping duplicate entry for ${marketArea}.`);
+            return;
+        }
+    }
+    fs.appendFileSync(filePath, `${newLine}\n`, 'utf8');
+}
+
+async function getLastLine(filePath) {
+    return new Promise((resolve, reject) => {
+        let lastLine = '';
+        const rl = readline.createInterface({
+            input: fs.createReadStream(filePath),
+            crlfDelay: Infinity
+        });
+        rl.on('line', (line) => {
+            lastLine = line;
+        });
+        rl.on('close', () => resolve(lastLine));
+        rl.on('error', reject);
+    });
 }
 
 async function storeAllAreas() {
@@ -33,7 +54,7 @@ async function storeAllAreas() {
                 try {
                     await storeTomorrow(area);
                 } catch (error) {
-                    console.error(`Error storing area ${area}:`, error);
+                    console.error(`Error storing new data for area ${area} - the data probably doesn't exist yet.`);
                     hasErrors = true;
                 }
             })
@@ -45,4 +66,4 @@ async function storeAllAreas() {
     return hasErrors;
 }
 
-storeAllAreas();
+void storeAllAreas();
