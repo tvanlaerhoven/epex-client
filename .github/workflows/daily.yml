@@ -31,7 +31,11 @@ jobs:
       - name: Commit Changes
         run: |
           git add data
-          git commit -m "Daily market results $(date +'%Y-%m-%d')"
+          if ! git diff --cached --exit-code; then
+            git commit -m "Daily market results $(date +'%Y-%m-%d')"
+          else
+            echo "No changes to commit"
+          fi
       - name: Push Changes
         run: |
           git push
