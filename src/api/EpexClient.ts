@@ -230,8 +230,8 @@ export class Client {
             throw new Error('Something is wrong: could not find table data');
         }
         const tableContent = table[1];
-        const baseloadMatch = tableContent.match(/<div class="flex day-1">[\s\S]*?<span>([\d.]+)<\/span>/);
-        const peakloadMatch = tableContent.match(/<div class="flex day-2">[\s\S]*?<span>([\d.]+)<\/span>/);
+        const baseloadMatch = tableContent.match(/<div class="flex day-1">[\s\S]*?<span>(-?[\d.]+)<\/span>/);
+        const peakloadMatch = tableContent.match(/<div class="flex day-2">[\s\S]*?<span>(-?[\d.]+)<\/span>/);
         const baseloadPrice = baseloadMatch ? parseFloat(baseloadMatch[1]) : 0;
         const peakloadPrice = peakloadMatch ? parseFloat(peakloadMatch[1]) : 0;
         const rowMatches = [...tableContent.matchAll(/<tr class="child.*?">(.*?)<\/tr>/gs)];
