@@ -88,13 +88,15 @@ const gbData = await client.getDayAheadMarketData(
     Epex.MarketArea.GreatBritain, 
     Epex.tomorrow(), 
     Epex.today(), 
+    Product.HOURLY,
     DayAheadAuction.GB_DAA1
 );
 
 const chData = await client.getDayAheadMarketData(
     Epex.MarketArea.Switzerland, 
     Epex.tomorrow(), 
-    Epex.today(), 
+    Epex.today(),
+    Product.HOURLY,
     DayAheadAuction.CH
 );
 ```
