@@ -62,6 +62,18 @@ export enum MarketSegment {
     Intraday = 'Intraday'
 }
 
+export enum Product {
+    /**
+     * Request quarterly data.
+     */
+    QUARTERLY = '15',
+
+    /**
+     * Request hourly data.
+     */
+    HOURLY = '60'
+}
+
 export enum DayAheadAuction {
     /**
      * Single Day-Ahead Coupling (formerly Multi-Regional Coupling or MRC).
@@ -168,7 +180,13 @@ export interface ClientConfig {
 export class Client {
     constructor(private readonly config: ClientConfig) {}
 
-    async getDayAheadMarketData(area: MarketArea, deliveryDate: string = today(), tradingDate: string = today(), auction?: DayAheadAuction) {
+    async getDayAheadMarketData(
+        area: MarketArea,
+        deliveryDate: string = today(),
+        tradingDate: string = today(),
+        product: Product = Product.HOURLY,
+        auction?: DayAheadAuction
+    ) {
         if (!auction) {
             auction = DayAheadAuction.SDAC;
             if (area === MarketArea.GreatBritain) {
@@ -178,22 +196,24 @@ export class Client {
                 auction = DayAheadAuction.CH;
             }
         }
-        return this.getMarketData(area, deliveryDate, tradingDate, MarketSegment.DayAhead, auction);
+        return this.getMarketData(area, deliveryDate, tradingDate, product, MarketSegment.DayAhead, auction);
     }
 
     async getIntradayMarketData(
         area: MarketArea,
         deliveryDate: string = today(),
         tradingDate: string = today(),
+        product: Product = Product.HOURLY,
         auction: IntradayAuction = IntradayAuction.SIDC_IDA1
     ) {
-        return this.getMarketData(area, deliveryDate, tradingDate, MarketSegment.Intraday, auction);
+        return this.getMarketData(area, deliveryDate, tradingDate, product, MarketSegment.Intraday, auction);
     }
 
     async getMarketData(
         area: MarketArea,
         deliveryDate: string = today(),
         tradingDate: string = today(),
+        product: Product = Product.HOURLY,
         segment = MarketSegment.DayAhead,
         auction?: DayAheadAuction | IntradayAuction
     ): Promise<MarketData> {
@@ -202,7 +222,7 @@ export class Client {
             process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
         }
 
-        const url = this.buildUrl(area, deliveryDate, tradingDate, segment, auction);
+        const url = this.buildUrl(area, deliveryDate, tradingDate, product, segment, auction);
         this.debug('fetching url', url);
         const response = await fetch(url);
 
@@ -257,6 +277,7 @@ export class Client {
         area: MarketArea,
         deliveryDate: string,
         tradingDate: string,
+        product: Product,
         marketSegment: MarketSegment,
         auction?: DayAheadAuction | IntradayAuction
     ): string {
@@ -265,6 +286,7 @@ export class Client {
             `?market_area=${area}` +
             `&delivery_date=${deliveryDate}` +
             `&trading_date=${tradingDate}` +
+            `&product=${product}` +
             `&modality=${TradingModality.Auction}` +
             `&sub_modality=${marketSegment}` +
             `&auction=${auction ?? ''}` +
