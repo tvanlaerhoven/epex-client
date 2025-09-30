@@ -218,7 +218,7 @@ export class Client {
         auction?: DayAheadAuction | IntradayAuction
     ): Promise<MarketData> {
         // disable certificate issues
-        if (process?.env) {
+        if (typeof process !== 'undefined' && process.env) {
             process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
         }
 
