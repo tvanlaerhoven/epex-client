@@ -23,8 +23,12 @@ async function storeTomorrow(marketArea) {
     if (fs.existsSync(filePath)) {
         // Read last line of the file
         const lastLine = await getLastLine(filePath);
-        if (lastLine.substring(0, 10) === newLine.substring(0, 10)) {
-            console.log(`Skipping duplicate entry for ${marketArea}.`);
+        const newDate = newLine.substring(0, 10);
+        const lastDate = lastLine.substring(0, 10);
+
+        // We already have data for the last day
+        if (new Date(newDate) <= new Date(lastDate)) {
+            console.log(`Skipping earlier entry for ${marketArea}: new date ${newDate} <= old date ${lastDate}.`);
             return;
         }
     }
