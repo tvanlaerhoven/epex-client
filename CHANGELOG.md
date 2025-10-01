@@ -1,5 +1,11 @@
 # @tvanlaerhoven/epex-client
 
+## 1.1.0
+
+### Minor Changes
+
+- 6bdf108: Added support for quarterly and hourly products.
+
 ## 1.0.6
 
 ### Patch Changes
