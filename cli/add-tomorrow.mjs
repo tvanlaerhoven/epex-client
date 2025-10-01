@@ -4,16 +4,17 @@ import * as fs from 'node:fs';
 import * as readline from 'node:readline';
 import path from 'node:path';
 
+const today = Epex.today();
 const tomorrow = Epex.tomorrow();
 
-async function requestRates(area, deliveryDate, tradingDate, auction) {
+async function requestRates(area, deliveryDate, product) {
     const client = new Epex.Client({ debug: true });
-    return client.getDayAheadMarketData(area, deliveryDate, tradingDate, auction);
+    return client.getDayAheadMarketData(area, deliveryDate, today, product);
 }
 
-async function storeTomorrow(marketArea) {
-    const filePath = `../data/${marketArea}.csv`;
-    const d = await requestRates(marketArea, tomorrow);
+async function storeTomorrow(marketArea, product) {
+    const filePath = product === Epex.Product.HOURLY ? `../data/${marketArea}.csv` : `../data/${marketArea}-q.csv`;
+    const d = await requestRates(marketArea, tomorrow, product);
     const dir = path.dirname(filePath);
     if (!fs.existsSync(dir)) {
         fs.mkdirSync(dir, { recursive: true });
@@ -50,13 +51,13 @@ async function getLastLine(filePath) {
     });
 }
 
-async function storeAllAreas() {
+async function storeAreas(product, areas) {
     let hasErrors = false;
     try {
         await Promise.all(
-            Object.values(Epex.MarketArea).map(async (area) => {
+            areas.map(async (area) => {
                 try {
-                    await storeTomorrow(area);
+                    await storeTomorrow(area, product);
                 } catch (error) {
                     console.error(`Error storing new data for area ${area} - the data probably doesn't exist yet.`);
                     hasErrors = true;
@@ -70,4 +71,5 @@ async function storeAllAreas() {
     return hasErrors;
 }
 
-void storeAllAreas();
+void storeAreas(Epex.Product.HOURLY, Object.values(Epex.MarketArea));
+void storeAreas(Epex.Product.QUARTERLY, Object.values(Epex.MarketArea));
