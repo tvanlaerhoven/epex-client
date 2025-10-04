@@ -72,4 +72,4 @@ async function storeAreas(product, areas) {
 }
 
 void storeAreas(Epex.Product.HOURLY, Object.values(Epex.MarketArea));
-void storeAreas(Epex.Product.QUARTERLY, Object.values(Epex.MarketArea));
+void storeAreas(Epex.Product.QUARTER_HOURLY, Object.values(Epex.MarketArea));

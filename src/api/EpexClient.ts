@@ -64,9 +64,9 @@ export enum MarketSegment {
 
 export enum Product {
     /**
-     * Request quarterly data.
+     * Request quarter-hourly data.
      */
-    QUARTERLY = '15',
+    QUARTER_HOURLY = '15',
 
     /**
      * Request hourly data.

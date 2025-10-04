@@ -9,7 +9,7 @@ export const tomorrow = (): string => {
     return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`;
 };
 
-export const toQuarterlyString = (period: number): string => {
+export const toQuarterHourlyString = (period: number): string => {
     const hours = Math.floor(period / 4)
         .toString()
         .padStart(2, '0');

@@ -11,7 +11,7 @@ if (process.argv.length < 3) {
         'Usage: node day-ahead-rates.mjs <marketArea> [deliveryDate] [tradingDate] [product] [auctionName].',
         '\nExamples:',
         '\n\t"node day-ahead-rates BE 2025-01-09 2025-01-09 60", for hourly BE data.',
-        '\n\t"node day-ahead-rates BE 2025-01-09 2025-01-09 15", for quarterly BE data.'
+        '\n\t"node day-ahead-rates BE 2025-01-09 2025-01-09 15", for quarter-hourly BE data.'
     );
     process.exit(-1);
 } else {
