@@ -1,5 +1,11 @@
 # @tvanlaerhoven/epex-client
 
+## 1.1.1
+
+### Patch Changes
+
+- 07c9cc2: Rename `Product.QUARTERLY` to `Product.QUARTER_HOURLY`.
+
 ## 1.1.0
 
 ### Minor Changes
