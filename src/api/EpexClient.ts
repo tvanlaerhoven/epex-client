@@ -3,6 +3,8 @@
 import { MarketData } from './MarketData';
 import { today } from './DateUtils';
 
+const DUMMY_USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36';
+
 export enum MarketArea {
     Austria = 'AT',
     Belgium = 'BE',
@@ -224,7 +226,11 @@ export class Client {
 
         const url = this.buildUrl(area, deliveryDate, tradingDate, product, segment, auction);
         this.debug('fetching url', url);
-        const response = await fetch(url);
+        const response = await fetch(url, {
+            headers: {
+                'user-agent': DUMMY_USER_AGENT
+            }
+        });
 
         if (!response.ok) {
             throw new Error(`Error reading market result: ${response.status}`);
