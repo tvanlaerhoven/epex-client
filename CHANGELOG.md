@@ -1,5 +1,11 @@
 # @tvanlaerhoven/epex-client
 
+## 1.1.2
+
+### Patch Changes
+
+- 55df96a: Fixed missing user-agent header in market requests.
+
 ## 1.1.1
 
 ### Patch Changes
