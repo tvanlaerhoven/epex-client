@@ -1,6 +1,6 @@
 {
   "name": "@tvanlaerhoven/epex-client",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "Collect European Power Exchange (EPEX) market data",
   "main": "dist/bundle.cjs.js",
   "module": "dist/bundle.esm.js",
