@@ -215,7 +215,7 @@ export class Client {
     ): Promise<MarketData[]> {
         const browser = await puppeteer.launch({
             headless: false,
-            headers: {}
+            args: ['--no-sandbox', '--disable-setuid-sandbox']
         });
         const result: MarketData[] = [];
         for (const area of areas) {
