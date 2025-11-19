@@ -2,6 +2,8 @@
 
 import { MarketData } from './MarketData';
 import { today } from './DateUtils';
+import puppeteer from 'puppeteer';
+import { Browser } from 'puppeteer';
 
 const DUMMY_USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36';
 
@@ -179,6 +181,8 @@ export interface ClientConfig {
     debug?: boolean;
 }
 
+const MAX_ATTEMPTS = 3;
+
 export class Client {
     constructor(private readonly config: ClientConfig) {}
 
@@ -187,7 +191,8 @@ export class Client {
         deliveryDate: string = today(),
         tradingDate: string = today(),
         product: Product = Product.HOURLY,
-        auction?: DayAheadAuction
+        auction?: DayAheadAuction,
+        withBrowser?: Browser
     ) {
         if (!auction) {
             auction = DayAheadAuction.SDAC;
@@ -198,7 +203,31 @@ export class Client {
                 auction = DayAheadAuction.CH;
             }
         }
-        return this.getMarketData(area, deliveryDate, tradingDate, product, MarketSegment.DayAhead, auction);
+        return this.getMarketData(area, deliveryDate, tradingDate, product, MarketSegment.DayAhead, auction, withBrowser);
+    }
+
+    async getDayAheadMarketDataList(
+        areas: MarketArea[],
+        deliveryDate: string = today(),
+        tradingDate: string = today(),
+        product: Product = Product.HOURLY,
+        auction?: DayAheadAuction
+    ): Promise<MarketData[]> {
+        const browser = await puppeteer.launch({
+            headless: false,
+            headers: {}
+        });
+        const result: MarketData[] = [];
+        for (const area of areas) {
+            try {
+                const data = await this.getDayAheadMarketData(area, deliveryDate, tradingDate, product, auction, browser);
+                result.push(data);
+            } catch (error) {
+                this.debug(`Error fetching data for area ${area}:`, (error as Error).message);
+            }
+        }
+        await browser.close();
+        return result;
     }
 
     async getIntradayMarketData(
@@ -217,7 +246,8 @@ export class Client {
         tradingDate: string = today(),
         product: Product = Product.HOURLY,
         segment = MarketSegment.DayAhead,
-        auction?: DayAheadAuction | IntradayAuction
+        auction?: DayAheadAuction | IntradayAuction,
+        withBrowser?: Browser
     ): Promise<MarketData> {
         // disable certificate issues
         if (typeof process !== 'undefined' && process.env) {
@@ -226,34 +256,57 @@ export class Client {
 
         const url = this.buildUrl(area, deliveryDate, tradingDate, product, segment, auction);
         this.debug('fetching url', url);
-        const response = await fetch(url, {
-            headers: {
-                'user-agent': DUMMY_USER_AGENT
-            }
-        });
+        const browser = withBrowser ?? (await puppeteer.launch({ headless: false }));
+        const page = await browser.newPage();
 
-        if (!response.ok) {
-            throw new Error(`Error reading market result: ${response.status}`);
+        await page.goto(url, { waitUntil: 'networkidle2' });
+        await sleep(2000);
+
+        let html = await page.content();
+        let data;
+        let attempts = 0;
+
+        while (!data && attempts < MAX_ATTEMPTS) {
+            try {
+                data = this.parseTable(html);
+            } catch (error) {
+                this.debug(`Error parsing data for area ${area}, retrying ...`);
+                attempts += 1;
+                await sleep(2000);
+                await page.reload({
+                    ignoreCache: true,
+                    waitUntil: 'networkidle2'
+                });
+                html = await page.content();
+            }
         }
-        const text = await response.text();
+
+        if (!data) {
+            throw new Error(`Failed to parse market data after ${MAX_ATTEMPTS} attempts.`);
+        }
+
+        await page.close();
+        if (!withBrowser) {
+            await browser.close();
+        }
 
         return {
             area,
-            deliveryDate: this.extractDate(text, 'delivery_date', deliveryDate),
-            tradingDate: this.extractDate(text, 'trading_date', tradingDate),
+            deliveryDate: this.extractDate(html, 'delivery_date', deliveryDate),
+            tradingDate: this.extractDate(html, 'trading_date', tradingDate),
             modality: TradingModality.Auction,
             segment,
             baseloadPrice: 0,
             peakloadPrice: 0,
             entries: [],
-            ...this.parseTable(text)
+            ...this.parseTable(html)
         };
     }
 
     private parseTable(data: string): Partial<MarketData> {
         const table = data.match(/<table data-head(.*?)<\/table>/s);
         if (!table) {
-            throw new Error('Something is wrong: could not find table data');
+            throw new Error(`Something is wrong: could not find table data!`);
         }
         const tableContent = table[1];
         const baseloadMatch = tableContent.match(/<div class="flex day-1">[\s\S]*?<span>(-?[\d.]+)<\/span>/);
@@ -290,13 +343,16 @@ export class Client {
         return (
             `${this.maybeUseProxy('https://www.epexspot.com/en/market-results')}` +
             `?market_area=${area}` +
+            `&auction=${auction ?? ''}` +
             `&delivery_date=${deliveryDate}` +
-            `&trading_date=${tradingDate}` +
-            `&product=${product}` +
+            `&underlying_year=` +
             `&modality=${TradingModality.Auction}` +
             `&sub_modality=${marketSegment}` +
-            `&auction=${auction ?? ''}` +
-            `&data_mode=table`
+            `&technology=` +
+            `&data_mode=table` +
+            `&period=` +
+            `&trading_date=${tradingDate}` +
+            `&product=${product}`
         );
     }
 
@@ -327,4 +383,8 @@ export class Client {
             console.debug('EPEX', message, ...other);
         }
     }
+}
+
+function sleep(ms: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, ms));
 }

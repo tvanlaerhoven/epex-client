@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import * as Epex from '../dist/bundle.cjs.js';
+import * as Epex from '../dist/esm/index.js';
 
 async function requestRates(area, deliveryDate, tradingDate, product, auction) {
     const client = new Epex.Client({ debug: true });
@@ -10,8 +10,8 @@ if (process.argv.length < 3) {
     console.log(
         'Usage: node day-ahead-rates.mjs <marketArea> [deliveryDate] [tradingDate] [product] [auctionName].',
         '\nExamples:',
-        '\n\t"node day-ahead-rates BE 2025-01-09 2025-01-09 60", for hourly BE data.',
-        '\n\t"node day-ahead-rates BE 2025-01-09 2025-01-09 15", for quarter-hourly BE data.'
+        '\n\t"node day-ahead-rates BE 2025-01-09 2025-11-19 60", for hourly BE data.',
+        '\n\t"node day-ahead-rates BE 2025-01-09 2025-11-19 15", for quarter-hourly BE data.'
     );
     process.exit(-1);
 } else {
