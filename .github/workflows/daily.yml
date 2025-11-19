@@ -26,7 +26,7 @@ jobs:
         run: npm run build
       - name: Fetch market results
         working-directory: cli
-        run: node add-tomorrow.mjs
+        run: xvfb-run --auto-servernum --server-args='-screen 0 1024x768x24' node add-tomorrow.mjs
       - name: Configure Git
         run: |
           git config user.name "github-actions[bot]"
