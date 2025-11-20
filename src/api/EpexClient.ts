@@ -182,6 +182,18 @@ export interface ClientConfig {
 }
 
 const MAX_ATTEMPTS = 3;
+const NO_DATA_ERROR = 'No data for this combination';
+const BROWSER_LAUNCH_OPTS = {
+    headless: false,
+    args: ['--no-sandbox', '--disable-setuid-sandbox', '--start-minimized']
+};
+
+class NoDataError extends Error {
+    constructor(message: string) {
+        super(message);
+        this.name = 'NoDataError';
+    }
+}
 
 export class Client {
     constructor(private readonly config: ClientConfig) {}
@@ -213,10 +225,7 @@ export class Client {
         product: Product = Product.HOURLY,
         auction?: DayAheadAuction
     ): Promise<MarketData[]> {
-        const browser = await puppeteer.launch({
-            headless: false,
-            args: ['--no-sandbox', '--disable-setuid-sandbox']
-        });
+        const browser = await puppeteer.launch(BROWSER_LAUNCH_OPTS);
         const result: MarketData[] = [];
         for (const area of areas) {
             try {
@@ -256,19 +265,25 @@ export class Client {
 
         const url = this.buildUrl(area, deliveryDate, tradingDate, product, segment, auction);
         this.debug('fetching url', url);
-        const browser = withBrowser ?? (await puppeteer.launch({ headless: false }));
+        const browser = withBrowser ?? (await puppeteer.launch(BROWSER_LAUNCH_OPTS));
         const page = await browser.newPage();
 
         await page.goto(url, { waitUntil: 'networkidle2' });
         await sleep(2000);
 
         let html = await page.content();
-        let data;
+        let tableData;
         let attempts = 0;
+        const couldHaveData = !html.includes(NO_DATA_ERROR);
 
-        while (!data && attempts < MAX_ATTEMPTS) {
+        if (!couldHaveData) {
+            await page.close();
+            throw new Error(`Failed to fetch market data: ${NO_DATA_ERROR}`);
+        }
+
+        while (!tableData && attempts < MAX_ATTEMPTS) {
             try {
-                data = this.parseTable(html);
+                tableData = this.parseTable(html);
             } catch (error) {
                 this.debug(`Error parsing data for area ${area}, retrying ...`);
                 attempts += 1;
@@ -280,12 +295,12 @@ export class Client {
                 html = await page.content();
             }
         }
+        await page.close();
 
-        if (!data) {
-            throw new Error(`Failed to parse market data after ${MAX_ATTEMPTS} attempts.`);
+        if (!tableData) {
+            throw new Error(`Failed to fetch market data after ${MAX_ATTEMPTS} attempts`);
         }
 
-        await page.close();
         if (!withBrowser) {
             await browser.close();
         }
@@ -299,7 +314,7 @@ export class Client {
             baseloadPrice: 0,
             peakloadPrice: 0,
             entries: [],
-            ...this.parseTable(html)
+            ...tableData
         };
     }
 

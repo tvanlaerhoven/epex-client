@@ -24,20 +24,22 @@ async function storeTomorrow(marketAreas, product) {
                 console.log(`Directory created: ${dir}`);
             }
             const result = results.find((r) => r.area === marketArea);
-            const newLine = `${result.deliveryDate},${result.entries.map((entry) => entry.price).join(',')},${result.baseloadPrice},${result.peakloadPrice}`;
-            if (fs.existsSync(filePath)) {
-                // Read last line of the file
-                const lastLine = await getLastLine(filePath);
-                const newDate = newLine.substring(0, 10);
-                const lastDate = lastLine.substring(0, 10);
+            if (result) {
+                const newLine = `${result.deliveryDate},${result.entries.map((entry) => entry.price).join(',')},${result.baseloadPrice},${result.peakloadPrice}`;
+                if (fs.existsSync(filePath)) {
+                    // Read last line of the file
+                    const lastLine = await getLastLine(filePath);
+                    const newDate = newLine.substring(0, 10);
+                    const lastDate = lastLine.substring(0, 10);
 
-                // We already have data for the last day
-                if (new Date(newDate) <= new Date(lastDate)) {
-                    console.log(`Skipping earlier entry for ${marketArea}: new date ${newDate} <= old date ${lastDate}.`);
-                    return;
+                    // We already have data for the last day
+                    if (new Date(newDate) <= new Date(lastDate)) {
+                        console.log(`Skipping earlier entry for ${marketArea}: new date ${newDate} <= old date ${lastDate}.`);
+                        return;
+                    }
                 }
+                fs.appendFileSync(filePath, `${newLine}\n`, 'utf8');
             }
-            fs.appendFileSync(filePath, `${newLine}\n`, 'utf8');
         })
     );
 }
