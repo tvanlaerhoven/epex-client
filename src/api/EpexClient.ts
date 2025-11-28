@@ -2,10 +2,8 @@
 
 import { MarketData } from './MarketData';
 import { today } from './DateUtils';
-import puppeteer from 'puppeteer';
+import puppeteer, { Page } from 'puppeteer';
 import { Browser } from 'puppeteer';
-
-const DUMMY_USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36';
 
 export enum MarketArea {
     Austria = 'AT',
@@ -181,19 +179,48 @@ export interface ClientConfig {
     debug?: boolean;
 }
 
-const MAX_ATTEMPTS = 3;
+export interface RequestOptions {
+    /**
+     * Optionally provide an existing browser instance to reuse across multiple requests.
+     */
+    withBrowser?: Browser;
+
+    /**
+     * Optionally add a delay (in milliseconds) before making the request.
+     */
+    requestDelayMs?: number;
+
+    /**
+     * Optionally add a random spread delay (in milliseconds) before making the request.
+     */
+    requestSpreadDelayMs?: number;
+
+    /**
+     * Optionally set the delay (in milliseconds) between retries when parsing fails.
+     */
+    retryDelayMs?: number;
+
+    /**
+     * Optionally set the maximum number of retries when parsing fails.
+     */
+    maxRetries?: number;
+}
+
+const DEFAULT_MAX_ATTEMPTS = 3;
+const DEFAULT_RETRY_DELAY_MS = 2000;
 const NO_DATA_ERROR = 'No data for this combination';
 const BROWSER_LAUNCH_OPTS = {
     headless: false,
     args: ['--no-sandbox', '--disable-setuid-sandbox', '--start-minimized']
 };
 
-class NoDataError extends Error {
-    constructor(message: string) {
-        super(message);
-        this.name = 'NoDataError';
-    }
-}
+const USER_AGENTS = [
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/',
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/',
+    'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/',
+    'Mozilla/5.0 (iPhone; CPU iPhone OS 14_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0 Mobile/15A372 Safari/604.1',
+    'Mozilla/5.0 (iPad; CPU OS 14_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0 Mobile/15A5341f Safari/604.1'
+];
 
 export class Client {
     constructor(private readonly config: ClientConfig) {}
@@ -204,7 +231,7 @@ export class Client {
         tradingDate: string = today(),
         product: Product = Product.HOURLY,
         auction?: DayAheadAuction,
-        withBrowser?: Browser
+        requestOptions?: RequestOptions
     ) {
         if (!auction) {
             auction = DayAheadAuction.SDAC;
@@ -215,7 +242,7 @@ export class Client {
                 auction = DayAheadAuction.CH;
             }
         }
-        return this.getMarketData(area, deliveryDate, tradingDate, product, MarketSegment.DayAhead, auction, withBrowser);
+        return this.getMarketData(area, deliveryDate, tradingDate, product, MarketSegment.DayAhead, auction, requestOptions);
     }
 
     async getDayAheadMarketDataList(
@@ -223,19 +250,23 @@ export class Client {
         deliveryDate: string = today(),
         tradingDate: string = today(),
         product: Product = Product.HOURLY,
-        auction?: DayAheadAuction
+        auction?: DayAheadAuction,
+        requestOptions?: RequestOptions
     ): Promise<MarketData[]> {
-        const browser = await puppeteer.launch(BROWSER_LAUNCH_OPTS);
+        const browser = requestOptions?.withBrowser ?? (await puppeteer.launch(BROWSER_LAUNCH_OPTS));
         const result: MarketData[] = [];
         for (const area of areas) {
             try {
-                const data = await this.getDayAheadMarketData(area, deliveryDate, tradingDate, product, auction, browser);
+                const data = await this.getDayAheadMarketData(area, deliveryDate, tradingDate, product, auction, {
+                    ...requestOptions,
+                    withBrowser: browser
+                });
                 result.push(data);
             } catch (error) {
                 this.debug(`Error fetching data for area ${area}:`, (error as Error).message);
             }
         }
-        await browser.close();
+        await browser?.close();
         return result;
     }
 
@@ -256,7 +287,7 @@ export class Client {
         product: Product = Product.HOURLY,
         segment = MarketSegment.DayAhead,
         auction?: DayAheadAuction | IntradayAuction,
-        withBrowser?: Browser
+        requestOptions?: RequestOptions
     ): Promise<MarketData> {
         // disable certificate issues
         if (typeof process !== 'undefined' && process.env) {
@@ -265,11 +296,19 @@ export class Client {
 
         const url = this.buildUrl(area, deliveryDate, tradingDate, product, segment, auction);
         this.debug('fetching url', url);
-        const browser = withBrowser ?? (await puppeteer.launch(BROWSER_LAUNCH_OPTS));
+        const browser = requestOptions?.withBrowser ?? (await puppeteer.launch(BROWSER_LAUNCH_OPTS));
+
         const page = await browser.newPage();
+        await page.evaluateOnNewDocument(() => {
+            Object.defineProperty(navigator, 'webdriver', {
+                get: () => false
+            });
+        });
+        await page.setJavaScriptEnabled(true);
+        await setRandomUserAgent(page);
 
         await page.goto(url, { waitUntil: 'networkidle2' });
-        await sleep(2000);
+        await sleep((requestOptions?.requestDelayMs ?? 0) + Math.floor(Math.random() * (requestOptions?.requestSpreadDelayMs ?? 0)));
 
         let html = await page.content();
         let tableData;
@@ -278,16 +317,20 @@ export class Client {
 
         if (!couldHaveData) {
             await page.close();
+            if (!requestOptions?.withBrowser) {
+                await browser.close();
+            }
             throw new Error(`Failed to fetch market data: ${NO_DATA_ERROR}`);
         }
 
-        while (!tableData && attempts < MAX_ATTEMPTS) {
+        while (!tableData && attempts < (requestOptions?.maxRetries ?? DEFAULT_MAX_ATTEMPTS)) {
             try {
                 tableData = this.parseTable(html);
             } catch (error) {
                 this.debug(`Error parsing data for area ${area}, retrying ...`);
                 attempts += 1;
-                await sleep(2000);
+                await sleep(requestOptions?.requestDelayMs ?? DEFAULT_RETRY_DELAY_MS);
+                await setRandomUserAgent(page);
                 await page.reload({
                     ignoreCache: true,
                     waitUntil: 'networkidle2'
@@ -298,10 +341,10 @@ export class Client {
         await page.close();
 
         if (!tableData) {
-            throw new Error(`Failed to fetch market data after ${MAX_ATTEMPTS} attempts`);
+            throw new Error(`Failed to fetch market data after ${DEFAULT_MAX_ATTEMPTS} attempts`);
         }
 
-        if (!withBrowser) {
+        if (!requestOptions?.withBrowser) {
             await browser.close();
         }
 
@@ -402,4 +445,9 @@ export class Client {
 
 function sleep(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function setRandomUserAgent(page: Page) {
+    const userAgent = USER_AGENTS[Math.floor(Math.random() * USER_AGENTS.length)];
+    return page.setUserAgent({ userAgent });
 }
