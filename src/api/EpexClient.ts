@@ -207,6 +207,7 @@ export interface RequestOptions {
 }
 
 const DEFAULT_MAX_ATTEMPTS = 3;
+const DEFAULT_REQUEST_DELAY_MS = 1000;
 const DEFAULT_RETRY_DELAY_MS = 2000;
 const NO_DATA_ERROR = 'No data for this combination';
 const BROWSER_LAUNCH_OPTS = {
@@ -308,7 +309,9 @@ export class Client {
         await setRandomUserAgent(page);
 
         await page.goto(url, { waitUntil: 'networkidle2' });
-        await sleep((requestOptions?.requestDelayMs ?? 0) + Math.floor(Math.random() * (requestOptions?.requestSpreadDelayMs ?? 0)));
+        await sleep(
+            (requestOptions?.requestDelayMs ?? DEFAULT_REQUEST_DELAY_MS) + Math.floor(Math.random() * (requestOptions?.requestSpreadDelayMs ?? 0))
+        );
 
         let html = await page.content();
         let tableData;
