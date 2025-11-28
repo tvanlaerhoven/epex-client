@@ -9,7 +9,12 @@ const tomorrow = Epex.tomorrow();
 
 async function requestRates(marketAreas, deliveryDate, product) {
     const client = new Epex.Client({ debug: true });
-    return client.getDayAheadMarketDataList(marketAreas, deliveryDate, today, product);
+    return client.getDayAheadMarketDataList(marketAreas, deliveryDate, today, product, undefined, {
+        maxRetries: 1,
+        requestDelayMs: 25000,
+        requestSpreadDelayMs: 10000,
+        retryDelayMs: 3000
+    });
 }
 
 async function storeTomorrow(marketAreas, product) {
@@ -59,10 +64,34 @@ async function getLastLine(filePath) {
     });
 }
 
+async function filterAreas(marketAreas, product) {
+    const filteredAreas = [];
+    const tomorrowDate = new Date(tomorrow);
+    await Promise.all(
+        marketAreas.map(async (marketArea) => {
+            const filePath = product === Epex.Product.HOURLY ? `../data/${marketArea}.csv` : `../data/${marketArea}-q.csv`;
+            if (fs.existsSync(filePath)) {
+                // Read last line of the file
+                const lastLine = await getLastLine(filePath);
+                const lastDate = lastLine.substring(0, 10);
+
+                // We don't have data for tomorrow yet
+                if (tomorrowDate > new Date(lastDate)) {
+                    filteredAreas.push(marketArea);
+                }
+            }
+        })
+    );
+
+    return filteredAreas;
+}
+
 async function storeAreas(product, areas) {
     let hasErrors = false;
     try {
-        await storeTomorrow(areas, product);
+        const filteredAreas = await filterAreas(areas, product);
+        console.log('New data will be fetched for areas:', filteredAreas);
+        await storeTomorrow(filteredAreas, product);
     } catch (error) {
         console.error('Error in storing areas:', error);
         hasErrors = true;
@@ -70,5 +99,10 @@ async function storeAreas(product, areas) {
     return hasErrors;
 }
 
-await storeAreas(Epex.Product.HOURLY, Object.values(Epex.MarketArea));
-await storeAreas(Epex.Product.QUARTER_HOURLY, Object.values(Epex.MarketArea));
+let areas = Object.values(Epex.MarketArea);
+if (process.argv.length > 2) {
+    areas = process.argv[2].split(',');
+}
+
+await storeAreas(Epex.Product.QUARTER_HOURLY, areas);
+await storeAreas(Epex.Product.HOURLY, areas);
