@@ -2,8 +2,7 @@ name: Fetch and store market results
 
 on:
   schedule:
-    - cron: '30 10 * * *'
-    - cron: '15,45 11,12,13,14 * * *'
+    - cron: '0,20,40 10,11,12,13 * * *'
   workflow_dispatch:
 
 jobs:
