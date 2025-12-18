@@ -306,7 +306,7 @@ export class Client {
             });
         });
         await page.setJavaScriptEnabled(true);
-        await setRandomUserAgent(page);
+        // await setRandomUserAgent(page);
 
         await page.goto(url, { waitUntil: 'networkidle2' });
         await sleep(
@@ -333,7 +333,7 @@ export class Client {
                 this.debug(`Error parsing data for area ${area}, retrying ...`);
                 attempts += 1;
                 await sleep(requestOptions?.requestDelayMs ?? DEFAULT_RETRY_DELAY_MS);
-                await setRandomUserAgent(page);
+                // await setRandomUserAgent(page);
                 await page.reload({
                     ignoreCache: true,
                     waitUntil: 'networkidle2'
