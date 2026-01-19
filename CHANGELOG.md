@@ -1,5 +1,11 @@
 # @tvanlaerhoven/epex-client
 
+## 1.2.0
+
+### Minor Changes
+
+- a2a160f: Fixed requests by using a real browser.
+
 ## 1.1.2
 
 ### Patch Changes
