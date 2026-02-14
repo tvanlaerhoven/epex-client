@@ -43,6 +43,17 @@ async function storeTomorrow(marketAreas, product) {
                         return;
                     }
                 }
+
+                // Check if data is correct
+                if (product === Epex.Product.HOURLY && result.entries.length !== 24) {
+                    console.warn(`Expected 24 entries for ${marketArea} ${product} on ${tomorrow}, but got ${result.entries.length}. Skipping.`);
+                    return;
+                }
+                if (product === Epex.Product.QUARTER_HOURLY && result.entries.length !== 96) {
+                    console.warn(`Expected 96 entries for ${marketArea} ${product} on ${tomorrow}, but got ${result.entries.length}. Skipping.`);
+                    return;
+                }
+
                 fs.appendFileSync(filePath, `${newLine}\n`, 'utf8');
             }
         })
